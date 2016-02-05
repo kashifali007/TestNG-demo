@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<project name="AutomationParactice_TestNG_Framework" default="usage" basedir=".">
+<property name="home" value="${basedir}"/>
+<property name="jars" value="E:\selenium\selenium-java-2.48.2\jars"/>
+<property name="test-dest" value="${basedir}/build"/>
+<property name="test-src" value="${basedir}/src"/>
+<property name="testng.result" value="${basedir}/testng-reports"/>
+
+ <taskdef name="testng" classname="org.testng.TestNGAntTask">
+      <classpath>
+         <pathelement location="${jars}"/>
+      </classpath>
+   </taskdef>
+
+<path id="classpath.base"/>
+
+<path id="classpath.test">
+
+  <fileset dir="${jars}">
+    <include name="**/*.jar"/>
+  </fileset>
+  <pathelement location="${test-dest}"/>
+  <pathelement location="${test-src}"/>
+  <path refid = "classpath.base"/>
+
+</path>
+
+
+
+<target name="clean">
+  <delete includeemptydirs="true" quiet="true">
+    <fileset dir="${test-dest}"/>
+    <fileset dir="${testng.result}"/>
+    <fileset dir="${home}/xslt-reports"/>
+  </delete>
+</target>
+
+<target name="compile" depends="clean">
+  <echo message="Making required directories..."/>
+  <mkdir dir="${test-dest}"/>
+  <echo message="Class path----${classpath.test}"/>
+  <echo message="Compiling...."/>
+  
+  <javac debug="true" destdir="${test-dest}" srcdir="${test-src}" target="1.8">
+    <classpath refid="classpath.test"/> 
+  </javac>
+</target>
+
+<target name="run" depends="compile">
+  <testng outputdir="${testng.result}" classpathref="classpath.test">
+     <xmlfileset dir="${basedir}" includes="TestNG.xml"/>
+  </testng>
+
+</target>
+
+<target name="GenerateXSLTreports">
+ <mkdir dir="${home}/xslt-reports"/>
+   <xslt in="${testng.result}/testng-results.xml" style="src/testng-results.xsl" 
+   out="${home}/xslt-reports/index.html" classpathref= "classpath.test" processor="SaxonLiaison">
+     <param name="testNgXslt.outputDir" expression="${home}/xslt-reports"/>
+     <param name="testNgXslt.showRuntimeTotals" expression="true"/>
+   </xslt>
+</target>
+</project>
